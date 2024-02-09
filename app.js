@@ -29,7 +29,7 @@ app.get("/api/ponczki", async (req, res) => {
         const allPonczkis = await collection.find({}).toArray();
         res.send(allPonczkis);
     } catch (err) {
-        res.status(500).json({err: err.message})
+        res.status(500).json({err: err.message});
     }
 });
 
@@ -42,7 +42,22 @@ app.get("/api/ponczki/:id", async (req, res) => {
         if (!ponczekDokument) return res.status(404).json({message: "Dokument not found"});
         res.send(ponczekDokument);
     } catch (err) {
-        res.status(500).json({err: err.message});
+        res.status(500).json({error: err.message});
+    }
+});
+
+app.post("/api/ponczki", async (req, res) => {
+    try {
+        const collection = db.collection("handmode");
+        const newPonczekDokument = req.body;
+        console.log(newPonczekDokument.name);
+
+        if (!newPonczekDokument || typeof newPonczekDokument !== Object) return res.status(400).json({message: "Invalid document format"});
+        const result = await collection.insertOne(newPonczekDokument);
+        if (!result.acknowledged) return res.status(500).json({message: "Failed to add the document"});
+        res.status(201).json({message: "Document added successfully", insertID: result.insertedId});
+    } catch (err) {
+        res.status(500).json({error: err.message});
     }
 });
 
